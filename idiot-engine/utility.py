@@ -94,3 +94,27 @@ def eat(postfix):
         else:
             stack.append(get_normal(stuff))
     return stack.pop()
+
+def get_next_state(current, visited):
+    bag = []
+    if current.epsilon_transition:
+        for f in current.epsilon_transition:
+            if f not in visited:
+                visited.add(f)
+                bag += get_next_state(f, visited)
+    else:
+        bag.append(current)
+    return bag
+
+def match(nfa, string):
+    visited = set()
+    current_states = get_next_state(nfa.start,visited)
+
+    for c in string:
+        n = []
+        for state in current_states:
+            o = state.normal_transition[c]
+            n = get_next_state(o, visited)
+        current_states = n
+    
+    return any(i.is_end for i in current_states)
